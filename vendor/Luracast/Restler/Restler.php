@@ -10,6 +10,7 @@ use InvalidArgumentException;
 use Luracast\Restler\Format\iFormat;
 use Luracast\Restler\Format\JsonFormat;
 use Luracast\Restler\Format\UrlEncodedFormat;
+use Luracast\Restler\Format\PassThruFormat;
 use Luracast\Restler\Data\iValidate;
 use Luracast\Restler\Data\Validator;
 use Luracast\Restler\Data\ValidationInfo;
@@ -563,10 +564,20 @@ class Restler extends EventEmitter
                 }
             }
 
+
             $result = null;
             if (!isset($o->className)) {
                 $this->handleError(404);
             } else {
+
+                // we delayed mimetype request handling until had loaded config
+                // so that we can passthru mimetype handling on a method by method
+                // basis
+                if ($this->requestFormat instanceof PassThruFormat && (!isset($o->metadata['mime']) || $o->metadata['mime'] != 'passthru')) {
+                    $mime = $this->requestFormat->getMime();
+                    $this->handleError(403, "Content type $mime is not supported.");
+                }
+
                 try {
                     $accessLevel = max(Defaults::$apiAccessLevel,
                         $o->accessLevel);
@@ -672,7 +683,7 @@ class Restler extends EventEmitter
             if ($this->productionMode) {
                 $this->handleError(500);
             } else {
-                $this->handleError(500, $e->getMessage());
+                $this->handleError(500, $e->getMessage()."\n".$e->getTraceAsString());
             }
         }
     }
@@ -893,8 +904,8 @@ class Restler extends EventEmitter
                 }
                 $format->setMIME($mime);
             } else {
-                $this->handleError(403, "Content type $mime is not supported.");
-                return null;
+                $format = new PassthruFormat();
+                $format->setMIME($mime);
             }
         }
         return $format;
