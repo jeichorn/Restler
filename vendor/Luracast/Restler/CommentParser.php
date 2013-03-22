@@ -210,6 +210,9 @@ class CommentParser
         $data = &$this->_data;
         $allowMultiple = false;
         switch ($param) {
+            case 'mime':
+                $value = $value [0];
+                break;
             case 'param' :
                 $value = $this->formatParam($value);
                 $allowMultiple = true;
