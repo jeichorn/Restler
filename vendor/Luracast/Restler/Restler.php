@@ -1052,8 +1052,24 @@ class Restler extends EventEmitter
      *
      * @return \stdClass
      */
-    public function mapUrlToMethod()
+    public function mapUrlToMethod($requestMethod = null)
     {
+        // if we have a HEAD request first attempt a map for a custom
+        // HEAD route, then fallback to GET
+        if ($this->requestMethod == 'HEAD' && $requestMethod === null)
+        {
+            $call = $this->mapUrlToMethod('HEAD');
+            if (!empty($call->className)) {
+                return $call;
+            }
+
+            return $this->mapUrlToMethod('GET');
+        }
+
+        if ($requestMethod === null) {
+            $requestMethod = $this->requestMethod;
+        }
+
         if (!isset($this->routes[$this->requestMethod])) {
             return new stdClass ();
         }

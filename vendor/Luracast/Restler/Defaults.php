@@ -72,11 +72,6 @@ class Defaults
      */
     public static $smartAutoRouting = true;
 
-    /**
-     * @var boolean rewrites HEAD requests to GET requests
-     */
-    public static $rewriteHeadToGet = true;
-
     // ==================================================================
     //
     // Versioning
