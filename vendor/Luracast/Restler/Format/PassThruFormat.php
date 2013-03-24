@@ -27,7 +27,7 @@ class PassthruFormat extends Format
 
     public function decode($data)
     {
-        return array('payload' => $data);
+        return array('payload' => $data, 'contentType' => $this->getMime());
     }
 
     public function setMime($mime)
