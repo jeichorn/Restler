@@ -1100,8 +1100,8 @@ class Restler extends EventEmitter
             $this->trigger('onRoute', array('url' => $url, 'target' => $call));
             $call = (object)$call;
             if (strstr($url, '{')) {
-                $regex = str_replace(array('{', '}'),
-                    array('(?P<', '>[^/]+)'), $url);
+                $regex = str_replace(array('}*', '{', '}'),
+                    array('>.+)', '(?P<', '>[^/]+)'), $url);
                 if (preg_match(":^$regex$:i", $currentUrl, $matches)) {
                     foreach ($matches as $arg => $match) {
                         if (isset($call->arguments[$arg])) {
